@@ -1,0 +1,43 @@
+version: '3'
+services:
+  db:
+    ports:
+      - 127.0.0.1:5432:5432
+    image: postgres:13
+    restart: unless-stopped
+    environment:
+      - POSTGRES_PASSWORD=postgres
+    networks:
+      - blognw
+      - bridge
+    volumes:
+      - ./scripts/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
+    healthcheck:
+      test: ["CMD", "pg_isready -U postgres -h localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  blog:
+    build:
+      context: .
+    networks:
+     - blognw
+    volumes:
+     - ./src:/app
+    working_dir: /app
+    command: air -c cmd/api/.air.toml
+    ports:
+     - "127.0.0.1:8001:8000"
+    # env_file:
+     # - cmd/api/.env
+     # - .docker.env
+    depends_on:
+     - db
+
+
+networks:
+  blognw:
+    driver: overlay
+  bridge:
+    driver: bridge
