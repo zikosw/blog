@@ -1,0 +1,134 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  license:
+    name: private
+    url: https://kk.zik.ooo
+  title: Blog
+  description: TODO
+  contact:
+    name: Blog
+    url: https://kk.zik.ooo
+servers:
+  - url: https://{hostname}/api
+    variables:
+      hostname:
+        default: localhost
+security:
+  - bearerAuth: []
+paths:
+
+  /blog:
+    get:
+      operationId: getBlogList
+      summary: List all available blog
+      responses:
+        200:
+          description: list blog
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlogList'
+
+                  
+    post:
+      operationId: createBlog
+      summary: create new blog
+      requestBody:
+        $ref: '#/components/requestBodies/BlogCreateEditRequest'
+      responses:
+        '200':
+          description: todo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Blog'
+
+  /blog/{blog_id}/edit:
+    post:
+      operationId: editBlog
+      summary: edit blog detail
+      parameters:
+        - in : path
+          name: blog_id
+          schema:
+            type: string 
+          required: true
+          description: id of blog
+      requestBody:
+        $ref: '#/components/requestBodies/BlogCreateEditRequest'
+      responses:
+        '200':
+          description: todo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Blog'
+
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Url:
+      type: string
+    
+    Blog:
+      type: object
+      required:
+        - id
+        - name
+        - slug
+        - description
+        - image_urls
+      properties:
+        id:
+          type: integer
+        slug:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        image_urls:
+          type: array
+          items:
+            $ref: '#/components/schemas/Url'
+
+    BlogList:
+      type: object
+      required:
+        - count
+        - items
+      properties:
+        count:
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Blog"
+
+
+  requestBodies:
+    BlogCreateEditRequest:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - name
+              - description
+              - image_urls
+            properties:
+              name:
+                type: string
+              description:
+                type: string
+              image_urls:
+                type: array
+                items:
+                  type:
+                    string
