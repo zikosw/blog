@@ -11,7 +11,11 @@ func TestNewInvalid(t *testing.T) {
 
 	r := require.New(t)
 
-	b, err := d.New(1, "title", "content")
+	title := "title"
+	content := d.Content("content")
+	sl := newSlug(title)
+
+	b, err := d.NewBlog(title, content, sl)
 	r.NoError(err)
 	r.NotNil(b)
 

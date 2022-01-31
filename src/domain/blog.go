@@ -3,7 +3,7 @@ package domain
 import (
 	"time"
 
-	validation "github.com/go-ozzo/ozzo-validation/v4"
+	v "github.com/go-ozzo/ozzo-validation/v4"
 )
 
 type Blog struct {
@@ -14,10 +14,9 @@ type Blog struct {
 	createdAt time.Time
 }
 
-func New(id int, title string, content Content, slug Slug) (*Blog, error) {
+func NewBlog(title string, content Content, slug Slug) (*Blog, error) {
 
 	b := Blog{
-		id:        id,
 		title:     title,
 		slug:      slug,
 		content:   content,
@@ -30,10 +29,32 @@ func New(id int, title string, content Content, slug Slug) (*Blog, error) {
 }
 
 func (b Blog) validate() error {
-	return validation.ValidateStruct(&b,
-		validation.Field(&b.id, validation.Required),
-		validation.Field(&b.title, validation.Required, validation.Length(4, 50)),
-		validation.Field(&b.content, validation.Required),
-		validation.Field(&b.createdAt, validation.Required),
+	return v.ValidateStruct(&b,
+		v.Field(&b.id, v.Min(0)), // validation.Required),
+		v.Field(&b.title, v.Required, v.Length(4, 50)),
+		v.Field(&b.content, v.Required),
+		v.Field(&b.createdAt, v.Required),
 	)
+}
+
+func (b Blog) ID() int              { return b.id }
+func (b Blog) Title() string        { return b.title }
+func (b Blog) Slug() Slug           { return b.slug }
+func (b Blog) Content() Content     { return b.content }
+func (b Blog) CreatedAt() time.Time { return b.createdAt }
+
+func UnmarshalBlog(id int, title string, content Content, slug Slug, createdAt time.Time) (*Blog, error) {
+	b := Blog{
+		id:        id,
+		title:     title,
+		slug:      slug,
+		content:   content,
+		createdAt: createdAt,
+	}
+
+	if err := b.validate(); err != nil {
+		return nil, err
+	}
+
+	return &b, nil
 }
